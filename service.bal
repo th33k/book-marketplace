@@ -11,7 +11,7 @@ service /api on bookstoreListner {
         
     }
 
-    resource function post books/upload() {
+    resource function post books/upload(UploadedBook uploadedBook) {
         
     }
 
@@ -23,7 +23,7 @@ service /api on bookstoreListner {
         
     }
 
-    resource function post books/[string bookId]/review() {
+    resource function post books/[string bookId]/review(string topic, string description) {
         
     }
 
