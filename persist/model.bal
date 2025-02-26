@@ -28,6 +28,7 @@ public type User record {|
 # + authorId - author id
 # + title - book title
 # + isbn - book ISBN
+# + description - book description
 # + price - book price
 # + quantity - remaining book quantity
 public type Book record {|
@@ -35,6 +36,7 @@ public type Book record {|
     @sql:Column { name: "author_id"}
     string authorId;
     string title;
+    string description;
     string isbn;
     float price;
     int quantity;

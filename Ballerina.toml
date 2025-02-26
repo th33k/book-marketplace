@@ -1,5 +1,5 @@
 [package]
-org = "shammi"
+org = "wso2"
 name = "book_marketplace"
 version = "0.1.0"
 distribution = "2201.11.0"
@@ -17,3 +17,4 @@ filePath = "persist/model.bal"
 groupId = "io.ballerina.stdlib"
 artifactId = "persist.inmemory-native"
 version = "1.5.0"
+
