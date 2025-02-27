@@ -38,9 +38,6 @@ service /book\-marketplace/api/v1 on bookstoreListner {
     resource function post books/upload(@http:Header string authentication, UploadedBook uploadedBook)
             returns http:Created|http:Forbidden|error {
         string userId = check getUserId(authentication);
-        if check isInvalidUserType(userId, "AUTHOR") {
-            return <http:Forbidden>{body: "You are not authorized to upload a book"};
-        }
         data:BookInsert bookInsert = {
             id: generateId(),
             authorId: userId,
@@ -58,9 +55,6 @@ service /book\-marketplace/api/v1 on bookstoreListner {
     resource function delete books/[string bookId](@http:Header string authentication)
             returns http:NoContent|http:Forbidden|error {
         string userId = check getUserId(authentication);
-        if check isInvalidUserType(userId, "AUTHOR") {
-            return {body: "You are not authorized to upload a book"};
-        }
         data:Book book = check dbClient->/books/[bookId];
         if userId != book.authorId {
             return {body: "You are not authorized to delete this book"};
@@ -77,9 +71,6 @@ service /book\-marketplace/api/v1 on bookstoreListner {
     resource function post books/[string bookId]/purchase(@http:Header string authentication, DeliveryAddress address)
             returns http:Created|http:Forbidden|error {
         string userId = check getUserId(authentication);
-        if check isInvalidUserType(userId, "BUYER") {
-            return <http:Forbidden>{body: "You are not authorized to purchase a book"};
-        }
         data:Book book = check dbClient->/books/[bookId];
         data:PurchaseOrder purchaseOrder = {
             id: generateId(),
@@ -106,9 +97,6 @@ service /book\-marketplace/api/v1 on bookstoreListner {
     resource function post books/[string bookId]/review(@http:Header string authentication, string topic, string description)
             returns http:Created|http:Forbidden|error {
         string userId = check getUserId(authentication);
-        if check isInvalidUserType(userId, "BUYER") {
-            return <http:Forbidden>{body: "You are not authorized to review a book"};
-        }
         data:ReviewInsert review = {
             id: generateId(),
             bookId,
@@ -126,19 +114,10 @@ service /book\-marketplace/api/v1 on bookstoreListner {
             scopes: ["admin"]
         }
     }
-    resource function put users/[string userIdToBeBanned]/ban(@http:Header string authentication) returns http:NoContent|http:Forbidden|error {
-        string userId = check getUserId(authentication);
-        if check isInvalidUserType(userId, "ADMIN") {
-            return <http:Forbidden>{body: "You are not authorized to ban a user"};
-        }
+    resource function put users/[string userIdToBeBanned]/ban() returns http:NoContent|http:Forbidden|error {
         _ = check dbClient->/users/[userIdToBeBanned].put({isBanned: true});
         return http:NO_CONTENT;
     }
-}
-
-function isInvalidUserType(string userId, string userType) returns boolean|error {
-    data:User user = check dbClient->/users/[userId];
-    return user.userType != userType;
 }
 
 function getUserId(string authenticationStr) returns string|error {
