@@ -1,0 +1,9 @@
+[book_marketplace.data]
+url = "jdbc:h2:file:./database/book_marketplace"
+user = "test"
+password = "test"
+
+[book_marketplace]
+refreshToken = "xxxx"
+clientId = "xxxx"
+clientSecret = "xxxx"
