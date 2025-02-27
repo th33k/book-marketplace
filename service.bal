@@ -2,6 +2,12 @@ import ballerina/http;
 import book_marketplace.data;
 import ballerina/persist;
 import ballerina/time;
+import ballerinax/googleapis.gmail;
+import ballerina/io;
+
+configurable string refreshToken = ?;
+configurable string clientId = ?;
+configurable string clientSecret = ?;
 
 listener http:Listener bookstoreListner = new (9090);
 final data:Client dbClient = check new ();
@@ -42,7 +48,7 @@ service /api on bookstoreListner { // TODO: change the service name
     resource function post books/[string bookId]/purchase(DeliveryAddress address) returns http:Created|error {
         // TODO: get user id and validate if the type is buyer
         string buyerId = "";
-        data:Book book = check dbClient->/books/bookId;
+        data:Book book = check dbClient->/books/[bookId];
         data:PurchaseOrder purchaseOrder = {
             id: generateId(),
             book_id: bookId,
@@ -56,6 +62,12 @@ service /api on bookstoreListner { // TODO: change the service name
             _ = check dbClient->/books/[bookId].put({quantity: book.quantity - 1});
             check commit;
         }
+
+        // Send email to sender
+        // string idAuthor = book.authorId;
+        // data:User author = check dbClient->/users/[idAuthor];
+        check sendAuthorMail(book.title, book.isbn, "shammi0107@gmail.com");
+
         return http:CREATED;
     }
 
@@ -79,4 +91,36 @@ service /api on bookstoreListner { // TODO: change the service name
         _ = check dbClient->/users/[userId].put({isBanned: true});
         return http:NO_CONTENT;
     }
+}
+
+public function sendAuthorMail(string bookTitle, string isbn, string authorEmail) returns error? {
+    gmail:Client gmail = check new ({
+        auth: {
+            refreshToken,
+            clientId,
+            clientSecret
+        }
+    });
+
+    // Compose the email message.
+
+    string htmlContent = string `<html>
+    <head>
+        <title>Book Purchase Notification</title>
+    </head>
+    <body>
+        <p>Dear Author,</p>
+        <p>Your book ${bookTitle} with isbn: ${isbn} available on our site has been sold</p>
+    </body>
+    </html>`;
+
+    gmail:MessageRequest message = {
+        to: [authorEmail],
+        subject: "Book Purchase Notification",
+        bodyInHtml: htmlContent
+    };
+
+    // Send the email message.
+    gmail:Message sendResult = check gmail->/users/me/messages/send.post(message);
+    io:println("Email sent. Message ID: " + sendResult.id);
 }

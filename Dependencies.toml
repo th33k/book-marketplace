@@ -108,6 +108,9 @@ dependencies = [
 	{org = "ballerina", name = "jballerina.java"},
 	{org = "ballerina", name = "lang.value"}
 ]
+modules = [
+	{org = "ballerina", packageName = "io", moduleName = "io"}
+]
 
 [[package]]
 org = "ballerina"
@@ -368,6 +371,27 @@ modules = [
 
 [[package]]
 org = "ballerinax"
+name = "googleapis.gmail"
+version = "4.0.1"
+dependencies = [
+	{org = "ballerina", name = "http"},
+	{org = "ballerina", name = "io"},
+	{org = "ballerina", name = "lang.array"},
+	{org = "ballerina", name = "lang.runtime"},
+	{org = "ballerina", name = "log"},
+	{org = "ballerina", name = "os"},
+	{org = "ballerina", name = "url"},
+	{org = "ballerina", name = "uuid"},
+	{org = "ballerinai", name = "observe"}
+]
+modules = [
+	{org = "ballerinax", packageName = "googleapis.gmail", moduleName = "googleapis.gmail"},
+	{org = "ballerinax", packageName = "googleapis.gmail", moduleName = "googleapis.gmail.mock"},
+	{org = "ballerinax", packageName = "googleapis.gmail", moduleName = "googleapis.gmail.oas"}
+]
+
+[[package]]
+org = "ballerinax"
 name = "h2.driver"
 version = "1.2.0"
 modules = [
@@ -410,6 +434,7 @@ name = "book_marketplace"
 version = "0.1.0"
 dependencies = [
 	{org = "ballerina", name = "http"},
+	{org = "ballerina", name = "io"},
 	{org = "ballerina", name = "jballerina.java"},
 	{org = "ballerina", name = "persist"},
 	{org = "ballerina", name = "sql"},
@@ -417,6 +442,7 @@ dependencies = [
 	{org = "ballerina", name = "uuid"},
 	{org = "ballerinai", name = "observe"},
 	{org = "ballerinai", name = "transaction"},
+	{org = "ballerinax", name = "googleapis.gmail"},
 	{org = "ballerinax", name = "h2.driver"},
 	{org = "ballerinax", name = "java.jdbc"},
 	{org = "ballerinax", name = "persist.sql"}
