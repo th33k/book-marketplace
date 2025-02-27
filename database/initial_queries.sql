@@ -1,0 +1,7 @@
+INSERT INTO "User" ("id", "name", "email", "userType", "passwordHash", "isBanned") VALUES ('ddbeea56-f50e-11ef-9cd2-0242ac120002', 'John Doe', 'johndoe@example.com', 'ADMIN', '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08', false);
+INSERT INTO "User" ("id", "name", "email", "userType", "passwordHash", "isBanned") VALUES ('71c97152-f510-11ef-9cd2-0242ac120002', 'William Shakespeare', 'shammi0107@gmail.com', 'AUTHOR', '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08', false);
+INSERT INTO "User" ("id", "name", "email", "userType", "passwordHash", "isBanned") VALUES ('9a6dd4f4-f510-11ef-9cd2-0242ac120002', 'Sam Smith', 'sam@example.com', 'BUYER', '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08', false);
+
+INSERT INTO "Book" ("id", "authorId", "title", "description", "isbn", "price", "quantity") VALUES ('3c7a45e8-f511-11ef-9cd2-0242ac120002', '71c97152-f510-11ef-9cd2-0242ac120002', 'Book Thief', 'A story about a curious girl', '0-4423-9037-8', 2000.00, 13);
+INSERT INTO "Book" ("id", "authorId", "title", "description", "isbn", "price", "quantity") VALUES ('8c0aae22-f511-11ef-9cd2-0242ac120002', '71c97152-f510-11ef-9cd2-0242ac120002', 'To Kill a Mockingbird', 'To Kill a Mockingbird', '0-5523-6208-5', 1500.00, 25);
+INSERT INTO "Book" ("id", "authorId", "title", "description", "isbn", "price", "quantity") VALUES ('960204d4-f511-11ef-9cd2-0242ac120002', '71c97152-f510-11ef-9cd2-0242ac120002', 'War and Peace', 'War and Peace', '0-7451-9073-1', 5500.00, 7);
