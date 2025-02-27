@@ -5,7 +5,7 @@ This sample project is a book marketplace where,
 - Buyers can buy books from sellers.
 - Admin can ban sellers and buyers.
 
-![Overview of the book market](/resources/er_diagram.png)
+![Overview of the book market](/book-marketplace/resources/bookstore.er.png)
 
 You will learn the following topics by completing the tasks in this project.
 

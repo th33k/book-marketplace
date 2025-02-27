@@ -1,4 +1,4 @@
 [book_marketplace.data]
-url = "jdbc:h2:file:./database/book_marketplace"
+url = "jdbc:h2:file:./resources/book_marketplace"
 user = "test"
 password = "test"

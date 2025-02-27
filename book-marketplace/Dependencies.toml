@@ -149,6 +149,9 @@ dependencies = [
 	{org = "ballerina", name = "jballerina.java"},
 	{org = "ballerina", name = "lang.__internal"}
 ]
+modules = [
+	{org = "ballerina", packageName = "lang.array", moduleName = "lang.array"}
+]
 
 [[package]]
 org = "ballerina"
@@ -458,6 +461,7 @@ version = "0.1.0"
 dependencies = [
 	{org = "ballerina", name = "http"},
 	{org = "ballerina", name = "jballerina.java"},
+	{org = "ballerina", name = "lang.array"},
 	{org = "ballerina", name = "log"},
 	{org = "ballerina", name = "persist"},
 	{org = "ballerina", name = "sql"},
