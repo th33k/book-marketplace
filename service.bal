@@ -6,7 +6,7 @@ import ballerina/time;
 listener http:Listener bookstoreListner = new (9090);
 final data:Client dbClient = check new ();
 
-service /api on bookstoreListner {
+service /api on bookstoreListner { // TODO: change the service name
     resource function post auth/login() {
         // TODO: Implement login
     }
