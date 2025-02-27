@@ -1,58 +1,56 @@
-import ballerina/http;
 import book_marketplace.data;
+
+import ballerina/http;
 import ballerina/persist;
 import ballerina/time;
-import ballerinax/googleapis.gmail;
-import ballerina/io;
-
-configurable string refreshToken = ?;
-configurable string clientId = ?;
-configurable string clientSecret = ?;
 
 listener http:Listener bookstoreListner = new (9090);
 final data:Client dbClient = check new ();
 
-service /api on bookstoreListner { // TODO: change the service name
-    resource function post auth/login() {
-        // TODO: Implement login
-    }
-
+service /book\-marketplace/api/v1 on bookstoreListner {
     resource function get books() returns data:Book[]|error {
         stream<data:Book, persist:Error?> bookStream = dbClient->/books;
-        return from data:Book book in bookStream select book;
+        return from data:Book book in bookStream
+            select book;
     }
 
-    resource function post books/upload(UploadedBook uploadedBook) returns http:Created|error {
-        // TODO: get user Id && validate if type is author
-        string authorId = "";
+    resource function post books/upload(@http:Header string userId, UploadedBook uploadedBook)
+            returns http:Created|http:Forbidden|error {
+        if check isValidUserType(userId, "AUTHOR") {
+            return <http:Forbidden>{body: "You are not authorized to upload a book"};
+        }
         data:BookInsert bookInsert = {
             id: generateId(),
-            authorId,
+            authorId: userId,
             ...uploadedBook
         };
         _ = check dbClient->/books.post([bookInsert]);
         return http:CREATED;
     }
 
-    resource function delete books/[string bookId]() returns http:NoContent|Forbidden|error {
-        // TODO: get user Id && validate if type is author
-        string authorId = "";
+    resource function delete books/[string bookId](@http:Header string userId)
+            returns http:NoContent|http:Forbidden|error {
+        if check isValidUserType(userId, "AUTHOR") {
+            return {body: "You are not authorized to upload a book"};
+        }
         data:Book book = check dbClient->/books/[bookId];
-        if (authorId != book.authorId) {
+        if userId != book.authorId {
             return {body: "You are not authorized to delete this book"};
         }
         _ = check dbClient->/books/[bookId].delete();
         return http:NO_CONTENT;
     }
 
-    resource function post books/[string bookId]/purchase(DeliveryAddress address) returns http:Created|error {
-        // TODO: get user id and validate if the type is buyer
-        string buyerId = "";
+    resource function post books/[string bookId]/purchase(@http:Header string userId, DeliveryAddress address)
+            returns http:Created|http:Forbidden|error {
+        if check isValidUserType(userId, "BUYER") {
+            return <http:Forbidden>{body: "You are not authorized to purchase a book"};
+        }
         data:Book book = check dbClient->/books/[bookId];
         data:PurchaseOrder purchaseOrder = {
             id: generateId(),
             book_id: bookId,
-            buyer_id: buyerId,
+            buyer_id: userId,
             status: data:PENDING,
             timestamp: time:utcNow(),
             ...address
@@ -62,22 +60,19 @@ service /api on bookstoreListner { // TODO: change the service name
             _ = check dbClient->/books/[bookId].put({quantity: book.quantity - 1});
             check commit;
         }
-
-        // Send email to sender
-        // string idAuthor = book.authorId;
-        // data:User author = check dbClient->/users/[idAuthor];
         check sendAuthorMail(book.title, book.isbn, "shammi0107@gmail.com");
-
         return http:CREATED;
     }
 
-    resource function post books/[string bookId]/review(string topic, string description) returns http:Created|error {
-        // TODO: get user id and validate if the type is buyer
-        string buyerId = "";
+    resource function post books/[string bookId]/review(@http:Header string userId, string topic, string description)
+            returns http:Created|http:Forbidden|error {
+        if check isValidUserType(userId, "BUYER") {
+            return <http:Forbidden>{body: "You are not authorized to review a book"};
+        }
         data:ReviewInsert review = {
             id: generateId(),
-            bookId: bookId,
-            buyerId: buyerId,
+            bookId,
+            buyerId: userId,
             topic,
             description,
             timestamp: time:utcNow()
@@ -86,41 +81,16 @@ service /api on bookstoreListner { // TODO: change the service name
         return http:CREATED;
     }
 
-    resource function put users/[string userId]/ban() returns http:NoContent|error {
-        // TODO: get user Id && validate if type is admin
-        _ = check dbClient->/users/[userId].put({isBanned: true});
+    resource function put users/[string userIdToBeBanned]/ban(@http:Header string userId) returns http:NoContent|http:Forbidden|error {
+        if check isValidUserType(userId, "ADMIN") {
+            return <http:Forbidden>{body: "You are not authorized to ban a user"};
+        }
+        _ = check dbClient->/users/[userIdToBeBanned].put({isBanned: true});
         return http:NO_CONTENT;
     }
 }
 
-public function sendAuthorMail(string bookTitle, string isbn, string authorEmail) returns error? {
-    gmail:Client gmail = check new ({
-        auth: {
-            refreshToken,
-            clientId,
-            clientSecret
-        }
-    });
-
-    // Compose the email message.
-
-    string htmlContent = string `<html>
-    <head>
-        <title>Book Purchase Notification</title>
-    </head>
-    <body>
-        <p>Dear Author,</p>
-        <p>Your book ${bookTitle} with isbn: ${isbn} available on our site has been sold</p>
-    </body>
-    </html>`;
-
-    gmail:MessageRequest message = {
-        to: [authorEmail],
-        subject: "Book Purchase Notification",
-        bodyInHtml: htmlContent
-    };
-
-    // Send the email message.
-    gmail:Message sendResult = check gmail->/users/me/messages/send.post(message);
-    io:println("Email sent. Message ID: " + sendResult.id);
+function isValidUserType(string userId, string userType) returns boolean|error {
+    data:User user = check dbClient->/users/[userId];
+    return user.userType == userType;
 }

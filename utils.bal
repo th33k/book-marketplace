@@ -1,27 +1,41 @@
 import ballerina/uuid;
+import ballerinax/googleapis.gmail;
+import ballerina/log;
+
+configurable string refreshToken = ?;
+configurable string clientId = ?;
+configurable string clientSecret = ?;
 
 function generateId() returns string => uuid:createType1AsString();
 
-// configurable string gmailAccessToken = ?;
+function sendAuthorMail(string bookTitle, string isbn, string authorEmail) returns error? {
+    gmail:Client gmail = check new ({
+        auth: {
+            refreshToken,
+            clientId,
+            clientSecret
+        }
+    });
 
-// gmail:Client gmail = check new ({auth: {token: gmailAccessToken}});
+    // Compose the email message.
 
-// public function sendBookOrderedMail(string authorName, string authorEmail, UploadedBook book) returns error? {
-//     string subject = "Book Ordered";
-//     string body = "Dear " + authorName + ",\n\n" +
-//                   "Your book " + book.title + " has been ordered successfully.\n\n" +
-//                   "Thank you for your contribution.\n\n" +
-//                   "Regards,\n" +
-//                   "The Book Store Team";
-//     return sendMail(recipientAddress, subject, body);
-// }
+    string htmlContent = string `<html>
+    <head>
+        <title>Book Purchase Notification</title>
+    </head>
+    <body>
+        <p>Dear Author,</p>
+        <p>Your book ${bookTitle} with isbn: ${isbn} available on our site has been sold</p>
+    </body>
+    </html>`;
 
-// function sendMail(string recipientAddress, string subject, string body) returns error? {
+    gmail:MessageRequest message = {
+        to: [authorEmail],
+        subject: "Book Purchase Notification",
+        bodyInHtml: htmlContent
+    };
 
-//     gmail:MessageRequest message = {
-//         to: [recipientAddress],
-//         subject: subject,
-//         bodyInText: body
-//     };
-//     _ = check gmail->/users/me/messages.post(message);
-// }
+    // Send the email message.
+    gmail:Message sendResult = check gmail->/users/me/messages/send.post(message);
+    log:printInfo("Email sent. Message ID: " + sendResult.id);
+}

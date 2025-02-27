@@ -1,5 +1,3 @@
-
-
 [book_marketplace.data]
 url = "jdbc:h2:file:./database/book_marketplace"
 user = "test"

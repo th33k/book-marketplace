@@ -1,4 +1,3 @@
-import ballerina/http;
 
 # Description for books to be uploaded.
 #
@@ -15,14 +14,15 @@ public type UploadedBook record {|
     int quantity;
 |};
 
-type DeliveryAddress record {|
+# Description for delivery address.
+# 
+# + deliveryAddrLine1 - address line 1
+# + deliveryAddrLine2 - address line 2
+# + deliveryAddrCity - address city
+# + deliveryAddrZip - address zip
+public type DeliveryAddress record {|
     string deliveryAddrLine1;
     string deliveryAddrLine2;
     string deliveryAddrCity;
     string deliveryAddrZip;
-|};
-
-type Forbidden record {|
-    *http:Forbidden;
-    string body;
 |};
