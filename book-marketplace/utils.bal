@@ -11,7 +11,11 @@ function generateId() returns string => uuid:createType1AsString();
 function sendAuthorMail(string bookTitle, string isbn, string authorEmail) returns error? {
     // TODO: 11. Fill in the auth fields of the new Gmail client.
     gmail:Client gmail = check new ({
-        auth: {}
+        auth: {
+            refreshToken: refreshToken,
+            clientId: clientId,
+            clientSecret: clientSecret
+        }
     });
 
     // Compose the email message.
@@ -33,5 +37,6 @@ function sendAuthorMail(string bookTitle, string isbn, string authorEmail) retur
     };
 
     // TODO: 12. Send the email message.
+    gmail:Message sendResult = check gmail->/users/me/messages/send.post(message);
     log:printInfo("Email sent. Message ID: " + sendResult.id);
 }
