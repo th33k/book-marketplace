@@ -17,23 +17,35 @@ You will learn the following topics by completing the tasks in this project.
 6. Writing unit tests.
 7. OAuth2 authentication
 
-## Notes
+## Steps to follow to complete the exercise
 
-### Note 1
+### Step 1
 
 Start the oauth ballerina-sts service by executing the following command.
 
 ```bash
 $ cd ballerina-sts
-$ bal run sts
+$ bal run
 ```
 
 This will start a service that will provide the oauth2 functionality for the book-marketplace service.
 
-### Note 2
+### Step 2
 
 Gmail API configurations can be obtained from [this google doc](https://docs.google.com/document/d/1i_nlEQeNwMTICqpGNAswIGlaj1nPJmiyZsP6PVrzCh4/edit?usp=sharing).
 
 ### Step 3
+
+Complete the TODOs in the book-marketplace service.
+
+### Step 4
+
+Start the book-marketplace service by executing the following command inside the book-marketplace directory.
+
+```bash
+$ bal run
+```
+
+### Step 5
 
 You can use [this postman collection](https://www.postman.com/sasnaka/workspace/uom/collection/8343289-0fe2a425-352e-4614-be7c-e46f5da5d8b4?action=share&creator=8343289) to test the APIs. Note that there is a header `Authorization` that is already set. This header contains the token from the oauth service.
