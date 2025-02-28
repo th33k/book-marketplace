@@ -35,9 +35,9 @@ service /book\-marketplace/api/v1 on bookstoreListner {
             scopes: ["author"]
         }
     }
-    resource function post books/upload(@http:Header string authentication, UploadedBook uploadedBook)
+    resource function post books/upload(@http:Header string authorization, UploadedBook uploadedBook)
             returns http:Created|http:Forbidden|error {
-        string userId = check getUserId(authentication);
+        string userId = check getUserId(authorization);
         data:BookInsert bookInsert = {
             id: generateId(),
             authorId: userId,
@@ -52,9 +52,9 @@ service /book\-marketplace/api/v1 on bookstoreListner {
             scopes: ["author"]
         }
     }
-    resource function delete books/[string bookId](@http:Header string authentication)
+    resource function delete books/[string bookId](@http:Header string authorization)
             returns http:NoContent|http:Forbidden|error {
-        string userId = check getUserId(authentication);
+        string userId = check getUserId(authorization);
         data:Book book = check dbClient->/books/[bookId];
         if userId != book.authorId {
             return {body: "You are not authorized to delete this book"};
@@ -68,9 +68,9 @@ service /book\-marketplace/api/v1 on bookstoreListner {
             scopes: ["buyer"]
         }
     }
-    resource function post books/[string bookId]/purchase(@http:Header string authentication, DeliveryAddress address)
+    resource function post books/[string bookId]/purchase(@http:Header string authorization, DeliveryAddress address)
             returns http:Created|http:Forbidden|error {
-        string userId = check getUserId(authentication);
+        string userId = check getUserId(authorization);
         data:Book book = check dbClient->/books/[bookId];
         data:PurchaseOrder purchaseOrder = {
             id: generateId(),
@@ -85,7 +85,7 @@ service /book\-marketplace/api/v1 on bookstoreListner {
             _ = check dbClient->/books/[bookId].put({quantity: book.quantity - 1});
             check commit;
         }
-        check sendAuthorMail(book.title, book.isbn, "shammi0107@gmail.com");
+        // check sendAuthorMail(book.title, book.isbn, "shammi0107@gmail.com");
         return http:CREATED;
     }
 
@@ -94,9 +94,9 @@ service /book\-marketplace/api/v1 on bookstoreListner {
             scopes: ["buyer"]
         }
     }
-    resource function post books/[string bookId]/review(@http:Header string authentication, string topic, string description)
+    resource function post books/[string bookId]/review(@http:Header string authorization, string topic, string description)
             returns http:Created|http:Forbidden|error {
-        string userId = check getUserId(authentication);
+        string userId = check getUserId(authorization);
         data:ReviewInsert review = {
             id: generateId(),
             bookId,
@@ -121,7 +121,8 @@ service /book\-marketplace/api/v1 on bookstoreListner {
 }
 
 function getUserId(string authenticationStr) returns string|error {
-    byte[] decoded = check array:fromBase64(authenticationStr);
+    string token = re ` `.split(authenticationStr)[1];
+    byte[] decoded = check array:fromBase64(token);
     string decodedString = check string:fromBytes(decoded);
     return re `:`.split(decodedString)[2];
 }
