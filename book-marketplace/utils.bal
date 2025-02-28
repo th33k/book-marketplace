@@ -9,12 +9,9 @@ configurable string clientSecret = ?;
 function generateId() returns string => uuid:createType1AsString();
 
 function sendAuthorMail(string bookTitle, string isbn, string authorEmail) returns error? {
+    // TODO: 11. Fill in the auth fields of the new Gmail client.
     gmail:Client gmail = check new ({
-        auth: {
-            refreshToken,
-            clientId,
-            clientSecret
-        }
+        auth: {}
     });
 
     // Compose the email message.
@@ -35,7 +32,6 @@ function sendAuthorMail(string bookTitle, string isbn, string authorEmail) retur
         bodyInHtml: htmlContent
     };
 
-    // Send the email message.
-    gmail:Message sendResult = check gmail->/users/me/messages/send.post(message);
+    // TODO: 12. Send the email message.
     log:printInfo("Email sent. Message ID: " + sendResult.id);
 }

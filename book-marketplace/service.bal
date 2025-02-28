@@ -26,8 +26,7 @@ final data:Client dbClient = check new ();
 service /book\-marketplace/api/v1 on bookstoreListner {
     resource function get books() returns data:Book[]|error {
         stream<data:Book, persist:Error?> bookStream = dbClient->/books;
-        return from data:Book book in bookStream
-            select book;
+        // TODO: 1. Return the books
     }
 
     @http:ResourceConfig {
@@ -43,15 +42,11 @@ service /book\-marketplace/api/v1 on bookstoreListner {
             authorId: userId,
             ...uploadedBook
         };
-        _ = check dbClient->/books.post([bookInsert]);
+       // TODO: 2. Insert the book into the database
         return http:CREATED;
     }
 
-    @http:ResourceConfig {
-        auth: {
-            scopes: ["author"]
-        }
-    }
+    // TODO: 3. Add the scope. Only authors can delete the book
     resource function delete books/[string bookId](@http:Header string authorization)
             returns http:NoContent|http:Forbidden|error {
         string userId = check getUserId(authorization);
@@ -63,11 +58,7 @@ service /book\-marketplace/api/v1 on bookstoreListner {
         return http:NO_CONTENT;
     }
 
-    @http:ResourceConfig {
-        auth: {
-            scopes: ["buyer"]
-        }
-    }
+    // TODO: 4. Add the scope. Only buyers can purchase the book
     resource function post books/[string bookId]/purchase(@http:Header string authorization, DeliveryAddress address)
             returns http:Created|http:Forbidden|error {
         string userId = check getUserId(authorization);
@@ -80,43 +71,23 @@ service /book\-marketplace/api/v1 on bookstoreListner {
             timestamp: time:utcNow(),
             ...address
         };
-        transaction {
-            _ = check dbClient->/purchaseorders.post([purchaseOrder]);
-            _ = check dbClient->/books/[bookId].put({quantity: book.quantity - 1});
-            check commit;
-        }
+        _ = check dbClient->/purchaseorders.post([purchaseOrder]);
+
+        // TODO: 5. Reduce the remaining quantity of the book in the database.
+        // TODO: 6. Use Ballerina transactions to ensure that the purchase order and the book quantity are updated atomically.
         check sendAuthorMail(book.title, book.isbn, "shammi0107@gmail.com");
         return http:CREATED;
     }
 
-    @http:ResourceConfig {
-        auth: {
-            scopes: ["buyer"]
-        }
-    }
+    // TODO: 7. Add the scope. Only buyers can review the book
     resource function post books/[string bookId]/review(@http:Header string authorization, string topic, string description)
             returns http:Created|http:Forbidden|error {
-        string userId = check getUserId(authorization);
-        data:ReviewInsert review = {
-            id: generateId(),
-            bookId,
-            buyerId: userId,
-            topic,
-            description,
-            timestamp: time:utcNow()
-        };
-        _ = check dbClient->/reviews.post([review]);
-        return http:CREATED;
+        // TODO: 8. Create and insert the review into the database using the db client. Return http:CREATED if successful.
     }
 
-    @http:ResourceConfig {
-        auth: {
-            scopes: ["admin"]
-        }
-    }
+    // TODO: 9. Add the scope. Only admins can ban users
     resource function put users/[string userIdToBeBanned]/ban() returns http:NoContent|http:Forbidden|error {
-        _ = check dbClient->/users/[userIdToBeBanned].put({isBanned: true});
-        return http:NO_CONTENT;
+        // TODO: 10. Update the user's status to BANNED in the database using the db client.
     }
 }
 
