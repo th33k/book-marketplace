@@ -85,7 +85,7 @@ service /book\-marketplace/api/v1 on bookstoreListner {
             _ = check dbClient->/books/[bookId].put({quantity: book.quantity - 1});
             check commit;
         }
-        // check sendAuthorMail(book.title, book.isbn, "shammi0107@gmail.com");
+        check sendAuthorMail(book.title, book.isbn, "shammi0107@gmail.com");
         return http:CREATED;
     }
 
